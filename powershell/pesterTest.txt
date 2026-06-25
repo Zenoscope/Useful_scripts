@@ -1,0 +1,268 @@
+###
+#
+#https://stackoverflow.com/questions/25326732/check-for-existence-of-parameter-in-function
+#
+#https://www.red-gate.com/simple-talk/sysadmin/powershell/introduction-to-testing-your-powershell-code-with-pester/
+#
+#https://www.powershellmagazine.com/2014/03/12/get-started-with-pester-powershell-unit-testing-framework/
+#Ad Namespace (types for accounts etc)
+#
+https://docs.microsoft.com/en-us/dotnet/api/microsoft.activedirectory.management?view=activedirectory-management-10.0
+$here = (Split-Path -Parent $MyInvocation.MyCommand.Path)
+. "$here\New User -Actual.ps1"
+#Set-DomainAdUser.Tests.ps1
+$here = Split-Path -Parent $MyInvocation.MyCommand.Path
+$sut = (Split-Path -Leaf $MyInvocation.MyCommand.Path) -replace '\.Tests\.', '.'
+. "$here\$sut"
+#### I had to specifiy the exact location of this script/module since it was in one of my $PsModulePath's ########
+Import-Module -Name "C:\Temp\PesterTests\Set-DomainAdUser.ps1" -verbose
+import-module ActiveDirectory
+#invoke-pester -path .\script.tests.ps1
+#Install-Module Pester -Force -SkipPublisherCheck
+# https://www.red-gate.com/simple-talk/sysadmin/powershell/introduction-to-testing-your-powershell-code-with-pester/
+#Unit testing : test the describe or part of the code (using mocks to pretend to connect to the reset of the code) Mocks masquerade as actual cmdlets or describes
+#Integration testing: Testing the whole codebase. Does not use mocks
+#Acceptance testing: Done by someone other than the developer
+#TDD (Test driven design)
+#Write your tests for the requirements, and tests for failures (error handling)
+##### A script to create a new user.###
+#----------------------------------------------------------[Variable Declarations]----------------------------------------------------------
+
+# Strings!
+$day.SelectedItem = "12"
+$month.SelectedItem "08"
+$year.SelectedItem = "2019"
+$result = "Ok"
+# needed by the script:
+# sets the domain controller where the accounts are first made/manipulated.
+$ExchangeServer = "exchangeserver.company.org"
+$Dom1_DC = "domainController.company2.org" # PDC
+$Dom2_DC = "grdns2.int.company2.org" # PDC
+$db = "MBDB01", "MBDB02", "MBDB03", "MBDB04", "MBDB04", "MBDB05", "MBDB06", "MBDB07", "MBDB08"
+# get the one which is smallest?
+$MailboxDB = Get-Random $db
+$Dom1OU = "OU=Sync Inbound,OU=People,OU=People,DC=company1,DC=org,"
+$Dom2OU = "OU=Sync Outbound,OU=User Accounts,DC=company2,DC=DC=org"
+$Dom1domain = "company2.org"
+$Dom2domain = "company2.org"
+$Dom2CN = "Dom2"
+$Dom1CN = "Dom1"
+#$ErrorActionPreference = "Stop"
+$Date = Get-Date
+# fake drive for testing purposes
+$HomeDrivePath = "test-drive:\\fileservername\home\Users\"
+$userfolder = $HomeDrivePath + "T.User"
+
+#########
+$Dom2UPN = $first_name_text[0]+"."+$last_name_text+"@$Dom2domain"
+$Dom1UPN = "$first_name_text.$last_name_text@$Dom1domain"
+$firstname = new-object System.Windows.Forms.Textbox
+$firstname.text = "Test"
+$lastname = new-object System.Windows.Forms.Textbox
+$lastname.text = "User"
+$Dept = new-object System.Windows.Forms.Textbox
+$Dept = "Testing Department"
+$Title = new-object System.Windows.Forms.Textbox
+$title.Text = "Test Job title"
+$Team = new-object System.Windows.Forms.Textbox
+$Team.Text = "Test Team"
+$PhysOffice = new-object System.Windows.Forms.Combobox
+$site = 3
+$NewUSerArguments = @{
+    GivenName = $($firstname.text)
+    Surname = $($lastname.text)
+    DisplayName = "$($firstname.text) $($lastname.text)"
+    Name = "$($firstname.text) $($lastname.text)"
+    SamAccountName = $($first_name_text[0]+"."+$last_name_text)
+    Email = $("$first_name_text.$last_name_text@company2.org")
+    Department = $($Dept.text)
+    Description = $Title.text + $Team_ + $endDate_
+    Title = $title.Text
+    AccountPassword = ConvertTo-SecureString -String $Password -AsPlainText -Force
+    enabled = $true
+    StreetAddress = $AddressTable.$site.StreetAddress
+    POBox = $AddressTable.$site.POBox
+    City = $AddressTable.$site.City
+    State = $AddressTable.$site.State
+    PostalCode = $AddressTable.$site.PostCode
+    Office = $AddressTable.$site.Office
+    #-----------------------describe declarations-----------------------
+    # this describe adds the text labels into the GUI
+    describe 'add-label' {
+        $name = "Name"
+        $XLoc = 10
+        $YLoc = 10
+        It "generates a label on the form in a specific location" {
+            $width = 80
+            $NewLabel = add-label $name $XLoc $YLoc $width
+        }
+        Context "Parameter testing" {
+            it "If some parameters are left out, it returns an error"
+            $NewLabelNoParam = add-label
+        }
+    }
+    # Add an alert box
+    describe add-AlertDialog {
+        # these are the describe's arguments
+        [string]$title = "Alert"
+        [string]$message = "This is an alert"
+        It 'generates an alert dialog box' {
+            add-AlertDialog $title $message
+        }
+    }
+    # add a text box
+    describe add-Textbox {
+        [int]$xloc = 100
+        [int]$yloc = 100
+        It 'generates a text box on a specific location on a form' {
+            add-Textbox $xloc $yloc
+        }
+    }
+    # add a button
+    describe add-Button {
+        [string]$name = "blah"
+        [int]$xloc = 100
+        [int]$yloc = 100
+        It 'generates a button on a specific location on a form' {
+            Add-button $xloc $yloc
+        }
+    }
+    # add drop-down box
+    describe add-Dropdown {
+        [array]$droplist = "1,2,3"
+        [int]$xloc = 100
+        [int]$yloc = 100
+        [int]$dropheight = 100
+        [string]$from="somewhere"
+        [int]$width = 100
+        It 'generates a button on a specific location on a form' {
+            add-Dropdown $droplist $xloc $yloc $dropheight $from $width
+        }
+    }
+    # sets a temporary password for the account
+    describe Get-Temppassword() {
+        It 'randomly generates a password'
+        #test by length of password, if it has numbers and letters in it
+        $password = Get-Temppassword -length 10
+        $password | should match ".\d"
+        $password | should match ".\S"
+    }
+    # change the folder ACL for the home folder
+    describe create-homedrive() {
+        it "creates a folder in the home drive"
+        create-homedrive $userfolder
+    }
+    describe Add-Access() {
+        It "adds access to a folder"
+        Add-Access -username "$Dom2domain\$sAMAcctName" -folder $userfolder
+        Add-Access -username "$Dom1domain\$($first_name_text+"."+$last_name_text)" -folder $userfolder
+    }
+
+    <#
+    # --------------MOCKS for external functions
+    Describe 'Test AdUser' {
+    $mockdata =
+    @{
+    Name = "here"
+    }
+    Context 'Return AdObject' {
+    ######## Mock out the function name and not the cmdlet within the function like you did in your previous thread ######
+    Mock -CommandName Set-DomainAduser -MockWith { return $mockdata }
+    $result = Set-DomainAduser
+    it 'Should return ADObject here' {
+    $result.Name | Should Be "here"
+    }
+    }
+    }
+    #>
+    #Mock objects:
+    #creates a fake AD account
+    mock New-ADUser {
+        New-ADUser -Server $Dom2_DC -userprincipalname $Dom2upn -Path $Dom2OU -ChangePasswordAtLogon $true @NewUSerArguments -Credential $Credential @set_endDate
+        $ADUserAccount = New-object -type Microsoft.ActiveDirectory.Management.ADAccount
+        $Dom2UPN = $first_name_text[0]+"."+$last_name_text+"@$Dom2domain"
+        $Dom1UPN = "$first_name_text.$last_name_text@$Dom1domain"
+        $firstname = new-object System.Windows.Forms.Textbox
+        $firstname.text = "Test"
+        $lastname = new-object System.Windows.Forms.Textbox
+        $lastname.text = "User"
+        $Dept = new-object System.Windows.Forms.Textbox
+        $Dept = "Testing Department"
+        $Title = new-object System.Windows.Forms.Textbox
+        $title.Text = "Test Job title"
+        $Team = new-object System.Windows.Forms.Textbox
+        $Team.Text = "Test Team"
+        $PhysOffice = new-object System.Windows.Forms.Combobox
+        $site = 3
+        GivenName = $($firstname.text)
+        Surname = $($lastname.text)
+        DisplayName = "$($firstname.text) $($lastname.text)"
+        Name = "$($firstname.text) $($lastname.text)"
+        SamAccountName = $($first_name_text[0]+"."+$last_name_text)
+        Email = $("$first_name_text.$last_name_text@company2.org")
+        Department = $($Dept.text)
+        Description = $Title.text + $Team_ + $endDate_
+        Title = $title.Text
+        AccountPassword = ConvertTo-SecureString -String $Password -AsPlainText -Force
+        enabled = $true
+        StreetAddress = $AddressTable.$site.StreetAddress
+        POBox = $AddressTable.$site.POBox
+        City = $AddressTable.$site.City
+        State = $AddressTable.$site.State
+        PostalCode = $AddressTable.$site.PostCode
+        Office = $AddressTable.$site.Office
+    }
+    Mock Get-Credential {
+        $password = ConvertTo-SecureString 'MySecretPassword' -AsPlainText -Force
+        $credential = New-Object System.Management.Automation.PSCredential ('root', $password)
+        $credential
+    }
+
+
+    #Fake Ad Gropup add-adgroupmember -members $sAMAcctName -identity "SG_SP13_EDI_AllUsers"
+    $ADSGSP13 = New-object -type Microsoft.ActiveDirectory.Management.ADGroup
+    Add-property -type identity
+
+    # can I make a fake DC?
+    #Functions to mock
+    # add the mailbox to the account
+    mock Enable-Mailbox {
+        -Displayname "$first_name_text $last_name_text" -database $MailboxDB -Alias "$first_name_text.$last_name_text" -domainController $Dom1_DC -identity $sAMAcctName
+    }
+    #get an AD object
+    mock get-ADobject {
+        -filter { name -like $Women_Location } | add-adgroupmember -members $sAMAcctName
+    }
+    #add a member to an AD group
+    mock add-adgroupmember {
+        -members $sAMAcctName -identity "SG_SP13_EDI_AllUsers" -server $Dom1_DC -credential $Credential
+    }
+    # get a user from AD
+    mock Get-ADUser {
+        -Server $Dom1_DC -Filter {sAMAccountname -eq $($first_name_text[0]+"."+$last_name_text) })
+    }
+    <#
+    mock Send-MailMessage {
+    }
+    #>
+    <#
+    # if user is CRM user, then send an email:
+    # check if ADM accounts have send-as rights, or email accounts
+    $Email_Message = @{
+    To = "CrmHelp@company2.org"
+    From = "helpdesk@company2.org"
+    Subject "New CRM user"
+    Body = "Hi,<br> Can you please setup $FirstName $LastName as a CRM user.<br> Thanks,<br> Digital Service Desk"
+    BodyAsHtml = $true
+    }
+    Send-MailMessage @Email_Message
+    $Email_Message = @{
+    To = $("$first_name_text.$last_name_text@company2.org")
+    From = "helpdesk@company2.org"
+    Subject "New CRM user"
+    Body = "Hi,<br> Can you please setup $FirstName $LastName as a CRM user.<br> Thanks,<br> Digital Service Desk"
+    BodyAsHtml = $true
+    }
+    Send-MailMessage @Email_Message
+    #>
+
